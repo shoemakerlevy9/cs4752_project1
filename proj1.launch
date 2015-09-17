@@ -3,8 +3,8 @@
 <launch>
 
 	<!-- Initializes the user inputs as ROS parameters -->
-		<param name="num_blocks" value = "3" type = "int" />
-		<param name="configuration" value = "stack_asc" type = "str" /> 
+		<param name="num_blocks" value = "3" type="int" />
+		<param name="configuration" value = "stack_asc" type="str" />
 
 	<!-- node 1: robot_interface
 	     1) maintain current state of robot and blocks
@@ -15,7 +15,7 @@
 			
 
 	<!-- node 2: controller
-	     1) plan and execute sequences of symbolic actions to rearrange blocks-->
+	     1) plan and execute sequences of symbolic actions to rearrange blocks -->
 		<node name="controller" pkg="hpb_proj1" type="controller.py">
 		</node>
 			
