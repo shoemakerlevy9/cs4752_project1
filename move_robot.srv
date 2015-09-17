@@ -1,0 +1,6 @@
+# pseudocode: boolean MoveRobot(enum Action, int Target)
+
+enum Action
+int Target
+---
+bool MoveRobot
