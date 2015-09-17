@@ -1,0 +1,23 @@
+<!-- Aaron Ferber | Nick Fragale | Esther Jun -->
+
+<launch>
+
+	<!-- Initializes the user inputs as ROS parameters 
+		<param name="num_blocks" value = 3 />
+		<param name="configuration" value = "stack_asc" /> -->
+
+	<!-- node 1: robot_interface
+	     1) maintain current state of robot and blocks
+	     2) accept commands to robot via /move_robot
+	     3) periodically report the state of the system at 1 Hz-->
+		<node name="robot_interface" pkg="hpb_proj1" type="robot_interface.py">
+		</node>
+			
+
+	<!-- node 2: controller
+	     1) plan and execute sequences of symbolic actions to rearrange blocks-->
+		<node name="controller" pkg="hpb_proj1" type="controller.py">
+		</node>
+			
+
+</launch>
