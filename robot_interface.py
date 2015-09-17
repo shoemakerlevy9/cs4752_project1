@@ -1,15 +1,30 @@
-#!/user/bin/env python
+#!/usr/bin/env python
 
-PACKAGE='youpuntedbaxter_proj1'
+PACKAGE='hpb_proj1'
 
-from State.msg import State
-from robot_interface.srv import move_robot
+from state.msg import String
 import rospy
+'''from robot_interface.srv import move_robot
+from std_msgs.msg import String'''
 
+def talker():
+    pub = rospy.Publisher('state', int, queue_size=10)
+    rospy.init_node('talker', anonymous=True)
+    rate = rospy.Rate(10) # 10hz
+    while not rospy.is_shutdown():
+        hello_str = "hello world %s" % rospy.get_time()
+        rospy.loginfo(hello_str)
+        pub.publish(hello_str)
+        rate.sleep()
+
+
+'''
 # Publishes the state of the world to the topic "/state" at a rate of 1 Hz
 pub = rospy.Publisher('state', state, queue_size = 10) 
 rospy.init_node('robot_interaface', anonymous=True)
 rate = rospy.Rate(1)
+
+
 
 # Subscribes to move_robot
 rospy.intit_node('robot_interface', anonymous=True)
@@ -86,5 +101,4 @@ def callback (move_robot):
 	if move_robot = "move above block":
 		baxter.y = 1 
 		baxter.z = stack1_h
-
-rospy.spin()
+'''
