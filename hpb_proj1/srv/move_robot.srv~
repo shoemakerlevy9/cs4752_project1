@@ -1,6 +1,6 @@
 # pseudocode: boolean MoveRobot(string Action, int Target)
 
 string Action
-int64 Target
+int Target
 ---
 bool MoveRobot

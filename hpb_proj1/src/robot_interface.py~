@@ -5,7 +5,7 @@ PACKAGE='hpb_proj1'
 import rospy
 from std_msgs.msg import String
 from std_msgs.msg import Int16
-from hpb_proj1.msg import State
+from hpb_proj1.msg import *
 
 
 
