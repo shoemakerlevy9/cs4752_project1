@@ -5,25 +5,23 @@ PACKAGE='hpb_proj1'
 import rospy
 from std_msgs.msg import String
 from std_msgs.msg import Int16
-from hpb_proj1.msg import *
+from hpb_proj1.msg import State
+
+#from robot_interface.srv import move_robot
+
+current_state = "scrambled"
+r1 = [0,4]
+b1 = [0,1]
+b2 = [0,2]
+b3 = [0,3]
 
 
-
-block1 = "Shutdown"
-block2 = "This is stupid"
-
-'''from robot_interface.srv import move_robot
-'''
 def talker():
-    pub = rospy.Publisher('state', Int16, queue_size=10)
+    pub = rospy.Publisher('state', State, queue_size=10)
     rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+    rate = rospy.Rate(1) # 1hz
     while not rospy.is_shutdown():
-        hello_str = "hello world %s" % rospy.get_time()
-        '''rospy.loginfo(hello_str)'''
-        pub.publish(10)
-	pub.publish(8)
-	pub.publish(6)
+        pub.publish(current_state,r1,b1,b2,b3)
         rate.sleep()
 
 if __name__ == '__main__':
@@ -33,16 +31,6 @@ if __name__ == '__main__':
         pass
 
 '''
-# Publishes the state of the world to the topic "/state" at a rate of 1 Hz
-pub = rospy.Publisher('state', state, queue_size = 10) 
-rospy.init_node('robot_interaface', anonymous=True)
-rate = rospy.Rate(1)
-
-
-
-# Subscribes to move_robot
-rospy.intit_node('robot_interface', anonymous=True)
-rospy.Subscriber("move_robot",moverobot, callback)
 
 # name - Name of the block (e.g. "block1" "block2" ...)
 # x - X position of th block
@@ -63,20 +51,10 @@ class robot
 		self.z = z
 		self.gripper = gripper
 		self.held_block = held_block
+'''
 
-int stacks[5]
 
-#Creates an array of blocks. For this problem we have block1 block2 and block3.
-blocks = []
-blocks.append(block("block1", 0, 1))
-blocks.append(block("block2", 0, 1))
-blocks.append(block("block3", 0, 1))
-blocks.append(block("table", 0, 0))
-blocks.append(block("table", 1, 0))
-blocks.append(block("table", 2, 0))
-blocks.append(block("table", 3, 0))
-blocks.append(block("table", 4, 0))
-
+'''
 #Creates baxter and initializes him at a certain location
 baxter = robot(0,4)
 

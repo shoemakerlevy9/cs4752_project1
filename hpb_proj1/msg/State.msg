@@ -1,4 +1,6 @@
-string State
-int16 name1
-int16 name2
-int16 name3
+string current_state
+int16[2] r1
+int16[2] b1 
+int16[2] b2
+int16[2] b3
+
