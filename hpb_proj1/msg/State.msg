@@ -1,4 +1,4 @@
-string current_state
+string descript
 int16[2] r1
 int16[2] b1 
 int16[2] b2
