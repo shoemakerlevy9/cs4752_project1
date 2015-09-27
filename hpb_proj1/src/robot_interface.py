@@ -8,65 +8,63 @@ from std_msgs.msg import Int16
 from hpb_proj1.msg import State
 from hpb_proj1.srv import move_robot
 
-#rospy.Service('move_robot', move_robot, handle_moveRobot)
 
 #from robot_interface.srv import move_robot
+class RobotInterface(object):
+	"""maintains the following instance variables
+	curState
+		descript
+		blockRepr
+		r1
+	blockLookup
+	num_blocks
+	"""
+	def __init__(s):
+		s.curState = None
+		s.blockLookup = {}
+		rospy.Service('move_robot', move_robot, s.handle_moveRobot)
+		s.init_state()
+		pub = rospy.Publisher('state', State, queue_size=10)
+		rospy.init_node('robot_interface', anonymous=True)
+		rate = rospy.Rate(1) # 1hz
+		while not rospy.is_shutdown():
+		    pub.publish(s.stateMessage)
+		    rate.sleep()
 
-    
-def handle_moveRobot(req):
-    #req.Action #<-- string
-    #req.Target #<-- int
-    return True
+	def handle_moveRobot(s,req):
+		#req.Action #<-- string
+    	#req.Target #<-- int
+		return True
 
-blocks = {}
+	def init_state(s):
+    	#Get initial number of blocks set in launch file 
+    	s.num_blocks = rospy.get_param('/num_blocks')
+    	#Get initial configuration set in launch file (ascending or descending) 
+    	s.config = rospy.get_param('/configuration')
+    	s.curState = State()
+    	s.curState.descript = s.config
+    	s.curState.r1 = [0,s.num_blocks]
+    	if s.config == "stack_asc":
+			s.stack_asc()
+    	elif s.config == "stack_des":
+			s.stack_asc()
+    	else:
+    		print 'configuration is an invalid parameter', config
+    	s.curState.blockRepr = repr(blockLookup)
 
-def talker():
-    rospy.Service('move_robot', move_robot, handle_moveRobot)
-    current_state = init_state()
-    pub = rospy.Publisher('state', State, queue_size=10)
-    rospy.init_node('robot_interface', anonymous=True)
-    rate = rospy.Rate(1) # 1hz
-    while not rospy.is_shutdown():
-        pub.publish(current_state)
-        rate.sleep()
+	def stack_asc(s):
+	    #TODO make this dyanamicly initialize b1-bn
+	    #stack the blocks in position X=0 in ascending order
+		s.blockLookup = {}
+		for i in range(1,s.num_blocks+1):
+			s.blockLookup[i] = Block(i,0,i)
 
-def init_state():
-    #Get initial number of blocks set in launch file 
-    num_blocks = rospy.get_param('/num_blocks')
-    #Get initial configuration set in launch file (ascending or descending) 
-    config = rospy.get_param('/configuration')
-    #
-    state = State()
-    state.descript = config
-    state.r1 = [0,4]
-    #state.b1 = [0,1]
-    #state.b2 = [0,2]
-    #state.b3 = [0,3]
-    #return state
-    #Inizialize blocks accourding to the configuration parameter
-    try:
-        if config == "stack_asc":
-            return stack_asc(state,num_blocks)
-        elif config == "stack_des":
-            return stack_des(state,num_blocks)
-    except ValueError:
-        print '/configuration is an invalid parameter', config
-
-def stack_asc(state,num_blocks):
-    #TODO make this dyanamicly initialize b1-bn
-    #stack the blocks in position X=0 in ascending order
-    state.b1 = [0,3]
-    state.b2 = [0,2]
-    state.b3 = [0,1]
-    return state
-
-def stack_des(state,num_blocks):
-    #TODO make this dyanamicly initialize b1-bn
-    #stack the blocks in position X=0 in descending order
-    state.b3 = [0,3]
-    state.b2 = [0,2]
-    state.b1 = [0,1]
-    return state
+	def stack_des(s):
+	    #TODO make this dyanamicly initialize b1-bn
+	    #stack the blocks in position X=0 in descending order
+	    s.blockLookup = {}
+	    for i in range(1,s.num_blocks+1):
+			s.blockLookup[i] = Block(i,0,num_blocks-i)
 
 
 #def update_word(move_robot):
@@ -87,7 +85,7 @@ def update_state(action, target):
     
 if __name__ == '__main__':
     try:
-        talker()
+        RobotInterface()
     except rospy.ROSInterruptException:
         pass
 
