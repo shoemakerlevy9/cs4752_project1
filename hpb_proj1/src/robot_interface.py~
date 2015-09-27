@@ -7,24 +7,30 @@ from std_msgs.msg import String
 from std_msgs.msg import Int16
 from hpb_proj1.msg import State
 
+#rospy.Service('move_robot', move_robot, handle_moveRobot)
+
 #from robot_interface.srv import move_robot
-
-
-
+current_state = State()
+current_state.descript = "hello"
+current_state.r1 = [5,5]
+current_state.b1 = [5,5]
+current_state.b2 = [5,5]
+current_state.b3 = [5,5]
 descript = "hi"
-r1 = [0,0]
-b1 = [0,0]
-b2 = [0,0]
-b3 = [0,0]
+r1 = [5,5]
+b1 = [5,5]
+b2 = [5,5]
+b3 = [5,5]
+
 
 def talker():
-    current_state = init_state()
+    #current_state = init_state()
     pub = rospy.Publisher('state', State, queue_size=10)
     rospy.init_node('robot_interface', anonymous=True)
     rate = rospy.Rate(1) # 1hz
     while not rospy.is_shutdown():
+        print "here"
         pub.publish(descript,r1,b1,b2,b3)
-        #pub.publish("hi",current_state.r1,current_state.b1,current_state.b2,current_state.b3)
         rate.sleep()
 
 def init_state():
@@ -32,8 +38,12 @@ def init_state():
     num_blocks = rospy.get_param('/num_blocks')
     #Get initial configuration set in launch file (ascending or descending) 
     config = rospy.get_param('/configuration')
-    #Initialize robot at position (0,4)
-    r1 = [0,4]
+    #
+    state.descript = "stack_asc"
+    state.r1 = [0,4]
+    state.b1 = [0,1]
+    state.b1 = [0,2]
+    state.b1 = [0,3]
     return r1
     #Inizialize blocks accourding to the configuration parameter
     try:
@@ -58,7 +68,16 @@ def stack_des(num_blocks):
     b2 = [0,2]
     b1 = [0,1]
 
-def update_state(action, target)
+
+#def update_word(move_robot):
+ #   if mov_robot.req.Action = "Open Gripper":
+#        baxter.gripper = "open"
+#        return True  
+#    elif mov_robot.req.Action = "Close Gripper":
+ #       baxter.gripper = "closed"
+#        return True
+
+def update_state(action, target):
     try:    
         if action == "open gripper":
             b1 = [0,9] #filler code
@@ -66,17 +85,26 @@ def update_state(action, target)
     except:
         return False
     
-
-
 if __name__ == '__main__':
     try:
         talker()
     except rospy.ROSInterruptException:
         pass
 
+# x - X position of robot
+# z - Z Position of Robot
+# gripper - State of robots gripper ("Open"/"Closed")
+# held_block - Name of the block being held by the gripper ("none" if no block is being held)
+
+#class robot
+#	def __ ini__(self, x, z, gripper, held_block)
+#		self.x = x
+#		self.z = z
+#		self.gripper = gripper
+#		self.held_block = held_block
+
 
 '''
-
 # name - Name of the block (e.g. "block1" "block2" ...)
 # x - X position of th block
 # z - Z position of the block
@@ -85,17 +113,6 @@ class block:
 		self.name = name
 		self.x = x
 		self.z = z
-
-# x - X position of robot
-# z - Z Position of Robot
-# gripper - State of robots gripper ("Open"/"Closed")
-# held_block - Name of the block being held by the gripper ("none" if no block is being held)
-class robot
-	def __ ini__(self, x, z, gripper, held_block)
-		self.x = x
-		self.z = z
-		self.gripper = gripper
-		self.held_block = held_block
 '''
 
 
