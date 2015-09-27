@@ -5,30 +5,27 @@ from std_msgs.msg import String
 from hpb_proj1.msg import State
 from hpb_proj1.srv import move_robot
 
-import sys
-print sorted(sys.modules.keys())
-
-
-def handle_moveRobot(req):
-    #req.Action #<-- string
-    #req.Target #<-- int
-    return True
 
 rospy.init_node('controller', anonymous=True)
-rospy.Service('move_robot', move_robot, handle_moveRobot)
 
-def callback(data):
-    if data.descript == 'stack_asc':
-        state=1
-    elif data.descript == 'stack_des':
-        state=2
-    elif data.descript == 'scattered':
-        state=3
-    else:
-        state=0 #uninitialized
-    return state 
+currentState = 0
+
+def scatter(prevState):
+    if prevState == "stack_asc"
+
+def handleCommand(cmd):
+    if cmd == "scatter":
+        pass
+    elif cmd == "stack_asc":
+        pass
+    elif cmd == "stack_desc":
+        pass
+    
+    
+
+#    if cmd==currentState
    
-def callback2():
+def handleState(data):
     if data.descript == 'stack_asc':
         end_state=1
     elif data.descript == 'stack_des':
@@ -38,10 +35,10 @@ def callback2():
     else:
         end_state=0 #uninitialized
     
-    if state == end_state:
-        return
-    else:
-        move_robot("open gripper", 1)  
+    #if state == end_state:
+     #   return
+    #else:
+    #    move_robot("open gripper", 1)  
     
 #def move_robot_server():
     #rospy.Service('move_robot', hbp_proj1.srv.move_robot, add_two_ints)
@@ -52,8 +49,8 @@ def move_robot(action, target):
     rospy.service(action, target)
 
 def controller():
-    rospy.Subscriber("state", State, callback)
-    rospy.Subscriber("command", String, callback2)
+    rospy.Subscriber("state", State, handleState)
+    rospy.Subscriber("command", String, handleCommand)
     #action()
     rospy.spin()
 
