@@ -7,66 +7,94 @@ from std_msgs.msg import String
 from std_msgs.msg import Int16
 from hpb_proj1.msg import State
 from hpb_proj1.srv import move_robot
+from Block import Block
 
-#rospy.Service('move_robot', move_robot, handle_moveRobot)
+
 
 #from robot_interface.srv import move_robot
+class RobotInterface(object):
+	"""maintains the following instance variables
+	curState
+		descript
+		blockRepr
+		r1
+	blockLookup
+	num_blocks
+	"""
+	def __init__(self):
+		rospy.Service('move_robot', move_robot, self.handle_moveRobot)
+		self.init_state()
+		pub = rospy.Publisher('state', State, queue_size=10)
+		rospy.init_node('robot_interface', anonymous=True)
+		rate = rospy.Rate(1) # 1hz
+		while not rospy.is_shutdown():
+		    pub.publish(self.curState)
+		    rate.sleep()
 
+	def handle_moveRobot(s,req):
+		#req.Action #<-- string
+		#req.Target #<-- int
+		action = req.Action
+		if action == "moveTo":
+		    if s.gState == 0:
+ 				return False
+		    tBlock = s.blockLookup[req.Target]
+		    s.blockInGripper = req.Target
+		    s.curState.r1 = [tBlock.x,tBlock.z,s.gState]
+		elif action == "moveAbove": #BUG: will place 2 blocks in the same location
+		    tBlock = s.blockLookup[req.Target]
+		    if s.blockHeld != 0:
+ 				s.blockLookup[s.blockHeld].x = tBlock.x
+ 				s.blockLookup[s.blockHeld].z = tBlock.z+1
+		    s.curState.r1 = [tBlock.x,tBlock.z+1,s.gState]
+		elif action == "closeGripper":
+		    s.gState = 0
+		    s.blockHeld = s.blockInGripper
+		    s.curState.r1[2] = 0
 
-def handle_moveRobot(req):
-    #req.Action #<-- string
-    #req.Target #<-- int
-    return True
+		elif action == "openGripper":
+		    s.gState = 1
+		    s.curState.r1[2] = 1
+		    s.blockHeld = 0
+		else:
+		    return False
+		s.curState.blockRepr = repr(s.blockLookup)
+		s.curState.descript = action #TODO this is not working
+		return True
 
-blocks = {}
+	def init_state(self):
+		self.blockHeld = 0
+		self.gState = 1
+		self.num_blocks = rospy.get_param('/num_blocks')
+		self.config = rospy.get_param('/configuration')
+		self.num_arms = rospy.get_param('/num_arms')
+		self.blockInGripper = self.num_blocks
+		self.curState = State()
+		self.curState.descript = self.config
+		self.curState.r1 = [1,self.num_blocks,1]
+		if self.config == "stack_asc":
+			self.stack_asc()
+		elif self.config == "stack_des":
+			self.stack_asc()
+		else:
+			print 'configuration is an invalid parameter', config
+		self.curState.blockRepr = repr(self.blockLookup)
 
-def talker():
-    rospy.Service('move_robot', move_robot, handle_moveRobot)
-    current_state = init_state()
-    pub = rospy.Publisher('state', State, queue_size=10)
-    rospy.init_node('robot_interface', anonymous=True)
-    rate = rospy.Rate(1) # 1hz
-    while not rospy.is_shutdown():
-        pub.publish(current_state)
-        rate.sleep()
+	def stack_asc(s):
+	    #TODO make this dyanamicly initialize b1-bn
+	    #stack the blocks in position X=0 in ascending order
+		s.blockLookup = {}
+		for i in range(1,s.num_blocks+1):
+			s.blockLookup[i] = Block(i,1,i)
+			s.blockLookup[-i] = Block(-i,i,0)
 
-def init_state():
-    #Get initial number of blocks set in launch file 
-    num_blocks = rospy.get_param('/num_blocks')
-    #Get initial configuration set in launch file (ascending or descending) 
-    config = rospy.get_param('/configuration')
-    #
-    state = State()
-    state.descript = config
-    state.r1 = [0,4]
-    #state.b1 = [0,1]
-    #state.b2 = [0,2]
-    #state.b3 = [0,3]
-    #return state
-    #Inizialize blocks accourding to the configuration parameter
-    try:
-        if config == "stack_asc":
-            return stack_asc(state,num_blocks)
-        elif config == "stack_des":
-            return stack_des(state,num_blocks)
-    except ValueError:
-        print '/configuration is an invalid parameter', config
-
-def stack_asc(state,num_blocks):
-    #TODO make this dyanamicly initialize b1-bn
-    #stack the blocks in position X=0 in ascending order
-    state.b1 = [0,3]
-    state.b2 = [0,2]
-    state.b3 = [0,1]
-    return state
-
-def stack_des(state,num_blocks):
-    #TODO make this dyanamicly initialize b1-bn
-    #stack the blocks in position X=0 in descending order
-    state.b3 = [0,3]
-    state.b2 = [0,2]
-    state.b1 = [0,1]
-    return state
+	def stack_des(s):
+	    #TODO make this dyanamicly initialize b1-bn
+	    #stack the blocks in position X=0 in descending order
+	    s.blockLookup = {}
+	    for i in range(1,s.num_blocks+1):
+			s.blockLookup[i] = Block(i,1,num_blocks-i)
+			s.blockLookup[-i] = Block(-i,i,0)
 
 
 #def update_word(move_robot):
@@ -87,7 +115,7 @@ def update_state(action, target):
     
 if __name__ == '__main__':
     try:
-        talker()
+        RobotInterface()
     except rospy.ROSInterruptException:
         pass
 
@@ -108,15 +136,6 @@ if __name__ == '__main__':
 # name - Name of the block (e.g. "block1" "block2" ...)
 # x - X position of th block
 # z - Z position of the block
-class Block:
-	def __init__(self,name, x, z):
-		self.name = name
-		self.x = x
-		self.z = z
-
-    def __repr__(self):
-        return "Block(%s,%d,%d)"%(self.name,self.x,self.z)
-
 
 
 '''
