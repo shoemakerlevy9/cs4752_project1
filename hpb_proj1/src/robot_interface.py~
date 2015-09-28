@@ -8,7 +8,7 @@ from std_msgs.msg import Int16
 from hpb_proj1.msg import State
 from hpb_proj1.srv import move_robot
 from Block import Block
-
+from baxter_interface import Gripper
 
 
 #from robot_interface.srv import move_robot
@@ -40,21 +40,31 @@ class RobotInterface(object):
  				return False
 		    tBlock = s.blockLookup[req.Target]
 		    s.blockInGripper = req.Target
+		    if s.sim_mode == 0:
+				# move robot
+				pass
 		    s.curState.r1 = [tBlock.x,tBlock.z,s.gState]
 		elif action == "moveAbove": #BUG: will place 2 blocks in the same location
 		    tBlock = s.blockLookup[req.Target]
 		    if s.blockHeld != 0:
  				s.blockLookup[s.blockHeld].x = tBlock.x
  				s.blockLookup[s.blockHeld].z = tBlock.z+1
+		    if s.sim_mode == 0:
+				
+				pass
 		    s.curState.r1 = [tBlock.x,tBlock.z+1,s.gState]
 		elif action == "closeGripper":
 		    s.gState = 0
 		    s.blockHeld = s.blockInGripper
+		    if s.sim_mode == 0:
+				s.gripper.close()
 		    s.curState.r1[2] = 0
 
 		elif action == "openGripper":
 		    s.gState = 1
 		    s.curState.r1[2] = 1
+		    if s.sim_mode == 0:
+				s.gripper.open()
 		    s.blockHeld = 0
 		else:
 		    return False
@@ -65,6 +75,7 @@ class RobotInterface(object):
 	def init_state(self):
 		self.blockHeld = 0
 		self.gState = 1
+		self.sim_mode = rospy.get_param('/sim_mode')
 		self.num_blocks = rospy.get_param('/num_blocks')
 		self.config = rospy.get_param('/configuration')
 		self.num_arms = rospy.get_param('/num_arms')
@@ -72,6 +83,8 @@ class RobotInterface(object):
 		self.curState = State()
 		self.curState.descript = self.config
 		self.curState.r1 = [1,self.num_blocks,1]
+		if sim_mode == 0:
+			self.gripper = Gripper("right")
 		if self.config == "stack_asc":
 			self.stack_asc()
 		elif self.config == "stack_des":

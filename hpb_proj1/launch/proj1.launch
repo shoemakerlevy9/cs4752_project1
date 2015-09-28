@@ -2,6 +2,7 @@
 		<param name="num_blocks" value = "4" type="int" />
 		<param name="configuration" value = "stack_des" type="str" />
 		<param name="num_arms" value = "2" type="int" />
+		<param name="sim_mode" value = "1" type="int" />
 
 		<node name="robot_interface" pkg="hpb_proj1" type="robot_interface.py">
 		</node>
